@@ -1,0 +1,82 @@
+# ビルド関連
+build/
+Release/
+Debug/
+x64/
+Win32/
+[Bb]in/
+[Oo]bj/
+[Ll]ib/
+[Ll]ogs/
+
+# CMake生成ファイル
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+Testing/
+
+# コンパイラ生成ファイル
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.out
+*.app
+
+# Visual Studio関連
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+ipch/
+
+# Visual Studio Code関連
+.vscode/
+*.code-workspace
+
+# CLion関連
+.idea/
+cmake-build-*/
+
+# 依存関係管理
+vcpkg_installed/
+
+# OS生成ファイル
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# テスト生成ファイル
+*.gcno
+*.gcda
+*.gcov
+test_results.xml
+coverage.xml
+coverage/
+
+# その他
+*.log
+*.tlog
+*.tmp
+*.temp
+*~ 
