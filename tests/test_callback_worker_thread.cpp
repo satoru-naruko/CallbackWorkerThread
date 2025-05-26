@@ -12,11 +12,11 @@ using namespace callback_worker_thread;
 class CallbackWorkerThreadTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    // テスト用の共通セットアップ
+    // Common setup for tests
   }
 
   void TearDown() override {
-    // テスト用の共通クリーンアップ
+    // Common cleanup for tests
   }
 };
 
@@ -57,7 +57,7 @@ TEST_F(CallbackWorkerThreadTest, EnqueueDefaultCallback) {
   auto future = worker.EnqueueDefault(callback, expected_arg1, expected_arg2, expected_arg3);
   future.wait();
   
-  // コールバックが実行されるまで少し待機
+  // Wait briefly for callback execution
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
   
   EXPECT_TRUE(callback_executed);
@@ -84,7 +84,7 @@ TEST_F(CallbackWorkerThreadTest, EnqueueGenericCallback) {
 }
 
 TEST_F(CallbackWorkerThreadTest, MultipleTasksExecution) {
-  CallbackWorkerThread worker(2);  // 2つのワーカースレッド
+  CallbackWorkerThread worker(2);  // 2 worker threads
   
   const int task_count = 10;
   std::atomic<int> completed_tasks(0);
@@ -98,7 +98,7 @@ TEST_F(CallbackWorkerThreadTest, MultipleTasksExecution) {
     futures.push_back(std::move(future));
   }
   
-  // 全てのタスクの完了を待機
+  // Wait for all tasks to complete
   for (auto& future : futures) {
     future.wait();
   }
@@ -111,7 +111,7 @@ TEST_F(CallbackWorkerThreadTest, QueueSizeTracking) {
   
   EXPECT_EQ(0u, worker.GetQueueSize());
   
-  // 長時間実行されるタスクを投入してキューを溜める
+  // Submit long-running tasks to fill the queue
   auto slow_task = []() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   };
@@ -124,13 +124,13 @@ TEST_F(CallbackWorkerThreadTest, QueueSizeTracking) {
     futures.push_back(std::move(future));
   }
   
-  // 少し待ってからキューサイズを確認
+  // Wait briefly before checking queue size
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
   
-  // 1つ目のタスクは実行中なので、キューには4つのタスクが残っているはず
+  // First task is executing, so queue should have 4 tasks
   EXPECT_LE(worker.GetQueueSize(), static_cast<size_t>(queue_tasks));
   
-  // 全てのタスクの完了を待機
+  // Wait for all tasks to complete
   for (auto& future : futures) {
     future.wait();
   }
@@ -144,7 +144,7 @@ TEST_F(CallbackWorkerThreadTest, StopFunctionality) {
   std::atomic<int> completed_before_stop(0);
   std::atomic<int> total_completed(0);
   
-  // いくつかのタスクを投入
+  // Submit some tasks
   std::vector<std::future<void>> futures;
   for (int i = 0; i < 5; ++i) {
     auto future = worker.Enqueue([&]() {
@@ -155,14 +155,14 @@ TEST_F(CallbackWorkerThreadTest, StopFunctionality) {
     futures.push_back(std::move(future));
   }
   
-  // 少し待ってから停止
+  // Wait briefly before stopping
   std::this_thread::sleep_for(std::chrono::milliseconds(30));
   worker.Stop();
   
-  // 停止後にタスクを投入しようとすると例外が発生
+  // Attempting to enqueue after stop should throw
   EXPECT_THROW(worker.Enqueue([](){}), std::runtime_error);
   
-  // 既存のタスクは完了することを確認
+  // Verify existing tasks complete
   for (auto& future : futures) {
     future.wait();
   }
@@ -175,12 +175,12 @@ TEST_F(CallbackWorkerThreadTest, ExceptionHandling) {
   
   std::atomic<bool> normal_task_executed(false);
   
-  // 例外をスローするタスクを投入
+  // Submit a task that throws
   auto exception_task = []() {
     throw std::runtime_error("Test exception");
   };
   
-  // 通常のタスクを投入
+  // Submit a normal task
   auto normal_task = [&normal_task_executed]() {
     normal_task_executed = true;
   };
@@ -188,13 +188,13 @@ TEST_F(CallbackWorkerThreadTest, ExceptionHandling) {
   auto future1 = worker.Enqueue(exception_task);
   auto future2 = worker.Enqueue(normal_task);
   
-  // 例外タスクは例外をスローするが、プログラムは継続する
+  // Exception task will throw but program continues
   future1.wait();
   future2.wait();
   
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
   
-  // 例外が発生しても次のタスクは実行される
+  // Next task should execute despite exception
   EXPECT_TRUE(normal_task_executed);
 }
 
@@ -217,12 +217,12 @@ TEST_F(CallbackWorkerThreadTest, ThreadSafety) {
     });
   }
   
-  // 全ての生産者スレッドの完了を待機
+  // Wait for all producer threads to complete
   for (auto& thread : producer_threads) {
     thread.join();
   }
   
-  // 少し待ってから結果を確認
+  // Wait briefly before checking results
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   
   EXPECT_EQ(num_threads * tasks_per_thread, total_executed.load());

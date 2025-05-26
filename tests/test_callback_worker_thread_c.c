@@ -5,14 +5,14 @@
 
 #include "callback_worker_thread/callback_worker_thread_c.h"
 
-// テスト用のグローバル変数
+// Global variables for testing
 static int g_callback_count = 0;
 static int g_last_int_value = 0;
 static double g_last_double_value = 0.0;
 static char g_last_string_value[256] = {0};
 static int g_last_return_value = 0;
 
-// テスト用コールバック関数
+// Test callback functions
 void test_default_callback(int arg1, double arg2, const char* arg3) {
     g_callback_count++;
     g_last_int_value = arg1;
@@ -42,7 +42,7 @@ void test_string_callback(const char* arg) {
     g_last_string_value[sizeof(g_last_string_value) - 1] = '\0';
 }
 
-// テスト状態をリセット
+// Reset test state
 void reset_test_state(void) {
     g_callback_count = 0;
     g_last_int_value = 0;
@@ -51,7 +51,7 @@ void reset_test_state(void) {
     g_last_return_value = 0;
 }
 
-// アサーションマクロ
+// Assertion macros
 #define ASSERT_EQ(expected, actual) \
     do { \
         if ((expected) != (actual)) { \
@@ -90,7 +90,7 @@ void reset_test_state(void) {
         } \
     } while(0)
 
-// テスト関数群
+// Test functions
 
 int test_create_destroy(void) {
     printf("Running test_create_destroy...\n");
@@ -98,7 +98,7 @@ int test_create_destroy(void) {
     CallbackWorkerThreadC* worker = NULL;
     CallbackWorkerResult result;
     
-    // 正常なケース
+    // Normal case
     result = callback_worker_create(1, &worker);
     ASSERT_SUCCESS(result);
     assert(worker != NULL);
@@ -111,7 +111,7 @@ int test_create_destroy(void) {
     result = callback_worker_destroy(worker);
     ASSERT_SUCCESS(result);
     
-    // エラーケース
+    // Error cases
     result = callback_worker_create(0, &worker);
     ASSERT_EQ(CALLBACK_WORKER_ERROR_INVALID_PARAM, result);
     
@@ -140,7 +140,7 @@ int test_default_callback_execution(void) {
                                              42, 3.14159, "test message");
     ASSERT_SUCCESS(result);
     
-    // コールバックが実行されたことを確認
+    // Verify that the callback was executed
     ASSERT_EQ(1, g_callback_count);
     ASSERT_EQ(42, g_last_int_value);
     ASSERT_DOUBLE_EQ(3.14159, g_last_double_value, 0.00001);
@@ -164,18 +164,18 @@ int test_various_callbacks(void) {
     result = callback_worker_create(2, &worker);
     ASSERT_SUCCESS(result);
     
-    // 引数なしコールバック
+    // No argument callback
     result = callback_worker_enqueue_no_arg(worker, test_no_arg_callback);
     ASSERT_SUCCESS(result);
     ASSERT_EQ(1, g_callback_count);
     
-    // 整数コールバック
+    // Integer callback
     result = callback_worker_enqueue_int(worker, test_int_callback, 100);
     ASSERT_SUCCESS(result);
     ASSERT_EQ(2, g_callback_count);
     ASSERT_EQ(100, g_last_int_value);
     
-    // 文字列コールバック
+    // String callback
     result = callback_worker_enqueue_string(worker, test_string_callback, "hello");
     ASSERT_SUCCESS(result);
     ASSERT_EQ(3, g_callback_count);
@@ -244,7 +244,7 @@ int test_error_handling(void) {
     result = callback_worker_create(1, &worker);
     ASSERT_SUCCESS(result);
     
-    // NULLポインタのテスト
+    // NULL pointer test
     result = callback_worker_enqueue_default(NULL, test_default_callback, 1, 1.0, "test");
     ASSERT_EQ(CALLBACK_WORKER_ERROR_NULL_POINTER, result);
     
@@ -290,7 +290,7 @@ int test_error_string_conversion(void) {
 }
 
 int main(void) {
-    printf("C言語インターフェーステスト開始\n");
+    printf("Starting C Interface Tests\n");
     printf("============================\n\n");
     
     int passed = 0;
@@ -305,13 +305,13 @@ int main(void) {
     total++; if (test_error_string_conversion()) passed++;
     
     printf("\n============================\n");
-    printf("テスト結果: %d/%d passed\n", passed, total);
+    printf("Test Results: %d/%d passed\n", passed, total);
     
     if (passed == total) {
-        printf("全てのテストが成功しました！\n");
+        printf("All tests passed successfully!\n");
         return 0;
     } else {
-        printf("一部のテストが失敗しました。\n");
+        printf("Some tests failed.\n");
         return 1;
     }
 } 

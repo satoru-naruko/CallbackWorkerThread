@@ -7,18 +7,18 @@
 using namespace callback_worker_thread;
 
 int main() {
-  std::cout << "CallbackWorkerThread ライブラリの使用例\n";
+  std::cout << "CallbackWorkerThread Library Usage Example\n";
   std::cout << "=====================================\n\n";
 
-  // 1. デフォルトコンストラクタ（1つのワーカースレッド）
-  std::cout << "1. 単一ワーカースレッドでのデフォルトコールバック実行:\n";
+  // 1. Default constructor (single worker thread)
+  std::cout << "1. Default callback execution with single worker thread:\n";
   {
     CallbackWorkerThread worker;
     
     auto callback = [](int id, double value, const std::string& message) {
-      std::cout << "  コールバック実行 - ID: " << id 
-                << ", 値: " << value 
-                << ", メッセージ: " << message << std::endl;
+      std::cout << "  Callback executed - ID: " << id 
+                << ", Value: " << value 
+                << ", Message: " << message << std::endl;
     };
     
     auto future = worker.EnqueueDefault(callback, 1, 3.14, "Hello World");
@@ -27,19 +27,19 @@ int main() {
   
   std::cout << "\n";
 
-  // 2. 複数ワーカースレッドでの汎用コールバック
-  std::cout << "2. 複数ワーカースレッドでの汎用コールバック実行:\n";
+  // 2. Generic callback with multiple worker threads
+  std::cout << "2. Generic callback execution with multiple worker threads:\n";
   {
-    CallbackWorkerThread worker(3);  // 3つのワーカースレッド
+    CallbackWorkerThread worker(3);  // 3 worker threads
     
     std::vector<std::future<int>> futures;
     
     for (int i = 0; i < 10; ++i) {
       auto future = worker.Enqueue([](int task_id) -> int {
-        std::cout << "  タスク " << task_id << " 実行中... (スレッドID: " 
+        std::cout << "  Task " << task_id << " executing... (Thread ID: " 
                   << std::this_thread::get_id() << ")" << std::endl;
         
-        // 処理をシミュレート
+        // Simulate processing
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         
         return task_id * 2;
@@ -48,36 +48,36 @@ int main() {
       futures.push_back(std::move(future));
     }
     
-    // 全てのタスクの結果を取得
-    std::cout << "  結果:\n";
+    // Get results of all tasks
+    std::cout << "  Results:\n";
     for (size_t i = 0; i < futures.size(); ++i) {
       int result = futures[i].get();
-      std::cout << "    タスク " << i << " の結果: " << result << std::endl;
+      std::cout << "    Task " << i << " result: " << result << std::endl;
     }
   }
   
   std::cout << "\n";
 
-  // 3. 異なる引数を持つコールバック
-  std::cout << "3. 異なる引数を持つコールバック関数:\n";
+  // 3. Callbacks with different arguments
+  std::cout << "3. Callbacks with different argument types:\n";
   {
     CallbackWorkerThread worker(2);
     
-    // 引数なし
+    // No arguments
     auto future1 = worker.Enqueue([]() {
-      std::cout << "  引数なしのコールバック実行\n";
+      std::cout << "  No-argument callback executed\n";
     });
     
-    // 単一引数
+    // Single argument
     auto future2 = worker.Enqueue([](const std::string& msg) {
-      std::cout << "  単一引数のコールバック: " << msg << std::endl;
-    }, "テストメッセージ");
+      std::cout << "  Single argument callback: " << msg << std::endl;
+    }, "Test message");
     
-    // 複数引数（異なる型）
+    // Multiple arguments (different types)
     auto future3 = worker.Enqueue([](int a, float b, bool c, const std::string& d) {
-      std::cout << "  複数引数のコールバック: " << a << ", " << b 
+      std::cout << "  Multiple argument callback: " << a << ", " << b 
                 << ", " << (c ? "true" : "false") << ", " << d << std::endl;
-    }, 42, 2.71f, true, "最終引数");
+    }, 42, 2.71f, true, "Final argument");
     
     future1.wait();
     future2.wait();
@@ -86,32 +86,32 @@ int main() {
   
   std::cout << "\n";
 
-  // 4. 戻り値を持つコールバック
-  std::cout << "4. 戻り値を持つコールバック:\n";
+  // 4. Callback with return value
+  std::cout << "4. Callback with return value:\n";
   {
     CallbackWorkerThread worker;
     
     auto future = worker.Enqueue([](int x, int y) -> int {
       int result = x + y;
-      std::cout << "  計算実行: " << x << " + " << y << " = " << result << std::endl;
+      std::cout << "  Calculation executed: " << x << " + " << y << " = " << result << std::endl;
       return result;
     }, 15, 27);
     
     int result = future.get();
-    std::cout << "  受信した結果: " << result << std::endl;
+    std::cout << "  Received result: " << result << std::endl;
   }
   
   std::cout << "\n";
 
-  // 5. スレッドプールの情報取得
-  std::cout << "5. スレッドプール情報:\n";
+  // 5. Thread pool information
+  std::cout << "5. Thread pool information:\n";
   {
     CallbackWorkerThread worker(4);
     
-    std::cout << "  ワーカースレッド数: " << worker.GetThreadCount() << std::endl;
-    std::cout << "  初期キューサイズ: " << worker.GetQueueSize() << std::endl;
+    std::cout << "  Worker thread count: " << worker.GetThreadCount() << std::endl;
+    std::cout << "  Initial queue size: " << worker.GetQueueSize() << std::endl;
     
-    // 長時間実行されるタスクを投入
+    // Submit long-running tasks
     std::vector<std::future<void>> futures;
     for (int i = 0; i < 10; ++i) {
       auto future = worker.Enqueue([i]() {
@@ -120,18 +120,18 @@ int main() {
       futures.push_back(std::move(future));
     }
     
-    std::cout << "  タスク投入後のキューサイズ: " << worker.GetQueueSize() << std::endl;
+    std::cout << "  Queue size after task submission: " << worker.GetQueueSize() << std::endl;
     
-    // 全タスクの完了を待機
+    // Wait for all tasks to complete
     for (auto& future : futures) {
       future.wait();
     }
     
-    std::cout << "  全タスク完了後のキューサイズ: " << worker.GetQueueSize() << std::endl;
+    std::cout << "  Queue size after all tasks completed: " << worker.GetQueueSize() << std::endl;
   }
 
   std::cout << "\n";
-  std::cout << "全ての例が正常に実行されました。\n";
+  std::cout << "All examples executed successfully.\n";
   
   return 0;
 } 

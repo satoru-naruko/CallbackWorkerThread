@@ -1,32 +1,32 @@
-# クイックスタートガイド
+# Quick Start Guide
 
-## 5分で始めるCallbackWorkerThread
+## Getting Started with CallbackWorkerThread in 5 Minutes
 
-このガイドでは、CallbackWorkerThreadライブラリを使用して簡単なアプリケーションを作成する手順を説明します。
+This guide explains how to create a simple application using the CallbackWorkerThread library.
 
-## 1. プロジェクトの取得とビルド
+## 1. Get and Build the Project
 
 ```bash
-# プロジェクトディレクトリに移動
+# Navigate to project directory
 cd CallbackWorkerThread
 
-# ビルドディレクトリを作成
+# Create build directory
 mkdir build
 cd build
 
-# CMakeでプロジェクトを設定
+# Configure project with CMake
 cmake ..
 
-# ビルド実行
+# Build
 make
 
-# 使用例の実行
+# Run example
 ./simple_example
 ```
 
-## 2. 最小限のサンプルコード
+## 2. Minimal Sample Code
 
-以下のコードを `my_app.cpp` として保存してください：
+Save the following code as `my_app.cpp`:
 
 ```cpp
 #include <iostream>
@@ -35,45 +35,45 @@ make
 using namespace callback_worker_thread;
 
 int main() {
-    // スレッドプールを作成（デフォルト: 1スレッド）
+    // Create thread pool (default: 1 thread)
     CallbackWorkerThread worker;
     
-    // シンプルなコールバック
+    // Simple callback
     auto future = worker.Enqueue([]() {
         std::cout << "Hello from worker thread!" << std::endl;
     });
     
-    // 完了を待機
+    // Wait for completion
     future.wait();
     
-    std::cout << "完了しました。" << std::endl;
+    std::cout << "Completed." << std::endl;
     return 0;
 }
 ```
 
-## 3. ビルドして実行
+## 3. Build and Run
 
 ```bash
-# コンパイル
+# Compile
 g++ -std=c++17 -I../include -pthread my_app.cpp ../build/libcallback_worker_thread.a -o my_app
 
-# 実行
+# Run
 ./my_app
 ```
 
-## 4. よく使用されるパターン
+## 4. Common Usage Patterns
 
-### パターン1: 引数付きコールバック
+### Pattern 1: Callback with Arguments
 
 ```cpp
 auto future = worker.Enqueue([](int id, const std::string& message) {
     std::cout << "Task " << id << ": " << message << std::endl;
-}, 42, "処理中です");
+}, 42, "Processing");
 
 future.wait();
 ```
 
-### パターン2: 戻り値のあるコールバック
+### Pattern 2: Callback with Return Value
 
 ```cpp
 auto future = worker.Enqueue([](int a, int b) -> int {
@@ -81,49 +81,49 @@ auto future = worker.Enqueue([](int a, int b) -> int {
 }, 10, 20);
 
 int result = future.get();  // 30
-std::cout << "結果: " << result << std::endl;
+std::cout << "Result: " << result << std::endl;
 ```
 
-### パターン3: 複数ワーカースレッド
+### Pattern 3: Multiple Worker Threads
 
 ```cpp
-CallbackWorkerThread worker(4);  // 4つのスレッド
+CallbackWorkerThread worker(4);  // 4 threads
 
-// 複数のタスクを投入
+// Submit multiple tasks
 std::vector<std::future<void>> futures;
 for (int i = 0; i < 10; ++i) {
     auto future = worker.Enqueue([i]() {
-        std::cout << "Task " << i << " 実行中" << std::endl;
+        std::cout << "Task " << i << " executing" << std::endl;
     });
     futures.push_back(std::move(future));
 }
 
-// 全て完了まで待機
+// Wait for all to complete
 for (auto& f : futures) {
     f.wait();
 }
 ```
 
-## 5. エラーハンドリング
+## 5. Error Handling
 
 ```cpp
 try {
     CallbackWorkerThread worker;
     
     auto future = worker.Enqueue([]() {
-        throw std::runtime_error("何かエラーが発生");
+        throw std::runtime_error("Some error occurred");
     });
     
-    future.wait();  // 例外は内部でキャッチされる
+    future.wait();  // Exception is caught internally
     
 } catch (const std::exception& e) {
-    std::cout << "エラー: " << e.what() << std::endl;
+    std::cout << "Error: " << e.what() << std::endl;
 }
 ```
 
-## 6. 実践的な使用例
+## 6. Practical Usage Example
 
-### ファイル処理の並列化
+### Parallel File Processing
 
 ```cpp
 #include <filesystem>
@@ -132,59 +132,59 @@ try {
 CallbackWorkerThread worker(4);
 std::vector<std::future<void>> futures;
 
-// 複数ファイルを並列処理
+// Process multiple files in parallel
 for (const auto& entry : std::filesystem::directory_iterator("./data")) {
     if (entry.is_regular_file()) {
         auto future = worker.Enqueue([filepath = entry.path()]() {
             std::ifstream file(filepath);
-            // ファイル処理ロジック
-            std::cout << "処理完了: " << filepath << std::endl;
+            // File processing logic
+            std::cout << "Processing completed: " << filepath << std::endl;
         });
         futures.push_back(std::move(future));
     }
 }
 
-// 全ファイル処理の完了を待機
+// Wait for all file processing to complete
 for (auto& f : futures) {
     f.wait();
 }
 ```
 
-## 7. パフォーマンス考慮事項
+## 7. Performance Considerations
 
-- **適切なスレッド数**: CPU数と同程度、または少し多めが効果的
-- **タスクの粒度**: 小さすぎるタスクはオーバーヘッドが大きい
-- **メモリ使用**: 大量のタスクを一度に投入するとメモリを消費
+- **Appropriate Thread Count**: Effective around CPU count or slightly more
+- **Task Granularity**: Too small tasks have high overhead
+- **Memory Usage**: Submitting many tasks at once consumes memory
 
 ```cpp
-// 良い例: 適度な粒度のタスク
+// Good example: Appropriate task granularity
 worker.Enqueue([&data]() {
     processLargeDataChunk(data);
 });
 
-// 悪い例: 過度に細かいタスク
+// Bad example: Too fine-grained tasks
 for (int i = 0; i < 1000000; ++i) {
-    worker.Enqueue([i]() { trivialOperation(i); });  // オーバーヘッドが大きい
+    worker.Enqueue([i]() { trivialOperation(i); });  // High overhead
 }
 ```
 
-## 8. デバッグのヒント
+## 8. Debugging Tips
 
 ```cpp
-// スレッドプールの状態確認
-std::cout << "ワーカー数: " << worker.GetThreadCount() << std::endl;
-std::cout << "待機タスク数: " << worker.GetQueueSize() << std::endl;
+// Check thread pool status
+std::cout << "Worker count: " << worker.GetThreadCount() << std::endl;
+std::cout << "Pending tasks: " << worker.GetQueueSize() << std::endl;
 
-// 現在のスレッドID表示
+// Display current thread ID
 worker.Enqueue([]() {
-    std::cout << "実行スレッドID: " << std::this_thread::get_id() << std::endl;
+    std::cout << "Executing thread ID: " << std::this_thread::get_id() << std::endl;
 });
 ```
 
-## 次のステップ
+## Next Steps
 
-- `examples/simple_example.cpp` で更なる使用例を確認
-- `tests/` ディレクトリでテストコードを参照
-- `include/callback_worker_thread/callback_worker_thread.h` でAPIドキュメントを確認
+- Check more examples in `examples/simple_example.cpp`
+- Reference test code in `tests/` directory
+- Review API documentation in `include/callback_worker_thread/callback_worker_thread.h`
 
-何か問題が発生した場合は、プロジェクトのREADME.mdを参照するか、Issueを作成してください。 
+If you encounter any issues, please refer to the README.md or create an Issue. 
