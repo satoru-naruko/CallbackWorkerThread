@@ -1,0 +1,86 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Language & Standard
+- Use **C++17**.  
+  - Always specify `-std=c++17`.  
+  - When upgrading in the future, ensure compatibility beforehand.
+
+## Style Guide
+- Fully adopt the **Google C++ Style Guide**.  
+  - Use `clang-format` with the `Google` preset and apply the following additional settings:  
+    ```yaml
+    IndentWidth:        2
+    ColumnLimit:        100
+    AllowShortFunctionsOnASingleLine: InlineOnly
+    ```
+- File names must follow `lower_snake_case.cpp / .h`.  
+- Use hierarchical namespaces such as `<project>::net` to avoid name collisions.
+
+## Tooling
+| Purpose             | Recommended Tools / Settings              |
+|---------------------|-------------------------------------------|
+| Lint                | `clang-tidy -checks=*,-fuchsia-*`         |
+| Static Analysis     | `cppcheck --std=c++17 --enable=all`       |
+| Dependency Mgmt     | `vcpkg` |
+| Build               | `CMake >= 3.20`     |
+
+## Memory Management
+- **Smart pointers by default**  
+  - Use `std::unique_ptr` for ownership transfer, `std::shared_ptr` for shared ownership.  
+  - Raw pointers are allowed only for **non-owning** and **nullable** use cases.
+  
+## Testing
+- Use **GoogleTest** as the framework.  
+- Minimum requirements:  
+  - 100% successful compilation  
+  - 80% statement coverage  
+  - 100% coverage for critical paths
+
+## 9. Security
+- **Always** validate external input.  
+- Include security checks from static analysis tools in CI.
+
+## 10. CI / CD
+- Use GitHub Actions (example):  
+  1. **clang-format** check  
+  2. Build & unit tests (Ubuntu / Windows)  
+  3. `clang-tidy` & `cppcheck`  
+  4. Submit coverage report
+
+## Naming Conventions (Supplement)
+| Type            | Rule                     | Example               |
+|-----------------|--------------------------|------------------------|
+| Class           | `UpperCamelCase`         | `TcpServer`           |
+| Member Function | `UpperCamelCase()`       | `StartAccept()`       |
+| Variable/Arg    | `lower_snake_case`       | `buffer_size`         |
+| Constant        | `kUpperCamelCase`        | `kMaxPayloadSize`     |
+| Macro           | `PROJECT_MACRO_NAME`     | `MYAPP_VERSION`       |
+| Member Variable | `lower_snake_case and _` | `my_member_variable_` |
+
+## Documentation
+- Use **Doxygen**-style comments in public headers.  
+- Explicitly document exceptions, return values, and thread safety.  
+- Include build instructions, dependency versions, and license info in the README.
+
+## Dependency Update Policy
+- Apply **SemVer**:  
+  - **Minor** updates: apply immediately  
+  - **Major** updates: apply after impact analysis  
+- Apply security patches within 72 hours.
+
+## Multi-Platform Support
+- Use **CMake** for building.  
+- Use **GoogleTest** for testing.  
+- Use **GitHub Actions** for test execution.  
+- Ensure implementation works on both **Windows** and **Linux**.  
+- **Prioritize Linux** for implementation.  
+- Use the pimpl idiom for cross-platform abstraction.
+
+
+
+
+
+

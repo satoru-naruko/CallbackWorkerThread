@@ -1,4 +1,4 @@
-# ビルド関連
+# Build related
 build/
 Release/
 Debug/
@@ -9,7 +9,7 @@ Win32/
 [Ll]ib/
 [Ll]ogs/
 
-# CMake生成ファイル
+# CMake generated files
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
@@ -19,7 +19,7 @@ CTestTestfile.cmake
 _deps/
 Testing/
 
-# コンパイラ生成ファイル
+# Compiler generated files
 *.o
 *.obj
 *.exe
@@ -31,7 +31,7 @@ Testing/
 *.out
 *.app
 
-# Visual Studio関連
+# Visual Studio related
 .vs/
 *.sln
 *.vcxproj
@@ -46,18 +46,18 @@ Testing/
 *.VC.opendb
 ipch/
 
-# Visual Studio Code関連
+# Visual Studio Code related
 .vscode/
 *.code-workspace
 
-# CLion関連
+# CLion related
 .idea/
 cmake-build-*/
 
-# 依存関係管理
+# Dependency management
 vcpkg_installed/
 
-# OS生成ファイル
+# OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -66,7 +66,7 @@ vcpkg_installed/
 ehthumbs.db
 Thumbs.db
 
-# テスト生成ファイル
+# Test generated files
 *.gcno
 *.gcda
 *.gcov
@@ -74,7 +74,7 @@ test_results.xml
 coverage.xml
 coverage/
 
-# その他
+# Others
 *.log
 *.tlog
 *.tmp
